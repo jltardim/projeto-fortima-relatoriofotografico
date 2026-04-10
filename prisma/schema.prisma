@@ -1,0 +1,146 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  nome      String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+model Obra {
+  id        String   @id @default(cuid())
+  nome      String
+  endereco  String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  fases    Fase[]
+  contatos ContatoObra[]
+  fotos    Foto[]
+
+  @@map("obras")
+}
+
+model Fase {
+  id    String @id @default(cuid())
+  nome  String
+  ordem Int
+
+  obraId String @map("obra_id")
+  obra   Obra   @relation(fields: [obraId], references: [id], onDelete: Cascade)
+
+  fotos Foto[]
+
+  @@map("fases")
+}
+
+model Contato {
+  id                String  @id @default(cuid())
+  nome              String
+  telefone          String  @unique
+  chatwootContactId Int?    @map("chatwoot_contact_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  obras ContatoObra[]
+  fotos Foto[]
+
+  @@map("contatos")
+}
+
+model ContatoObra {
+  contatoId String  @map("contato_id")
+  contato   Contato @relation(fields: [contatoId], references: [id], onDelete: Cascade)
+
+  obraId String @map("obra_id")
+  obra   Obra   @relation(fields: [obraId], references: [id], onDelete: Cascade)
+
+  @@id([contatoId, obraId])
+  @@map("contato_obras")
+}
+
+model NotificacaoConfig {
+  id               String   @id @default(cuid())
+  mensagemTemplate String   @map("mensagem_template")
+  horario          String   // formato "HH:mm"
+  diasSemana       Int[]    @map("dias_semana") // 0=dom, 1=seg, ..., 6=sab
+  ativo            Boolean  @default(true)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("notificacoes_config")
+}
+
+model Foto {
+  id                String     @id @default(cuid())
+  nomeArquivo       String     @map("nome_arquivo")
+  driveFileId       String?    @map("drive_file_id")
+  driveFolderId     String?    @map("drive_folder_id")
+  mensagemOriginal  String?    @map("mensagem_original")
+  chatwootMessageId Int?       @map("chatwoot_message_id")
+  status            FotoStatus @default(PENDING)
+
+  obraId    String?  @map("obra_id")
+  obra      Obra?    @relation(fields: [obraId], references: [id])
+
+  faseId    String?  @map("fase_id")
+  fase      Fase?    @relation(fields: [faseId], references: [id])
+
+  contatoId String?  @map("contato_id")
+  contato   Contato? @relation(fields: [contatoId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("fotos")
+}
+
+enum FotoStatus {
+  PENDING
+  PROCESSING
+  UPLOADED
+  FAILED
+  NEEDS_INFO
+}
+
+model DriveConfig {
+  id                  String @id @default(cuid())
+  folderIdRaiz        String @map("folder_id_raiz")
+  serviceAccountEmail String @map("service_account_email")
+  credentialsJson     String @map("credentials_json")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("drive_config")
+}
+
+model ChatwootConfig {
+  id         String @id @default(cuid())
+  baseUrl    String @map("base_url")
+  apiToken   String @map("api_token")
+  accountId  Int    @map("account_id")
+  inboxId    Int    @map("inbox_id")
+  dbHost     String @map("db_host")
+  dbPort     Int    @default(5432) @map("db_port")
+  dbName     String @map("db_name")
+  dbUser     String @map("db_user")
+  dbPassword String @map("db_password")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("chatwoot_config")
+}
