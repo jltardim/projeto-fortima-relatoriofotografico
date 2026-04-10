@@ -22,7 +22,7 @@ services:
     build: .
     restart: always
     ports:
-      - "3000:3000"
+      - "3001:3000"
     depends_on:
       db:
         condition: service_healthy
@@ -61,8 +61,7 @@ services:
 volumes:
   pgdata:
 
-# Para conectar na rede do Chatwoot (descomente e ajuste o nome da rede):
-# networks:
-#   default:
-#     external:
-#       name: chatwoot_default
+networks:
+  default:
+    external:
+      name: networking_public
