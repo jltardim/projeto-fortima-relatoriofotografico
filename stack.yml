@@ -1,0 +1,23 @@
+version: "3.8"
+
+services:
+  relatorio-fotos:
+    image: relatorio-fotos:latest
+    ports:
+      - "3001:3000"
+    env_file:
+      - /opt/relatorio-fotos/.env
+    environment:
+      NODE_ENV: "production"
+    networks:
+      - network_public
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+
+networks:
+  network_public:
+    external: true
