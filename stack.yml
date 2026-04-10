@@ -8,7 +8,7 @@ services:
     environment:
       DATABASE_URL: "postgresql://postgres:favuka123STACKS@postgres:5432/relatorio_fotos"
       NEXTAUTH_SECRET: "${NEXTAUTH_SECRET}"
-      NEXTAUTH_URL: "https://relatorio.fortimaservidor.org"
+      NEXTAUTH_URL: "https://relatorio01.fortimaservidor.org"
       ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY}"
       POLL_INTERVAL_MINUTES: "2"
       NODE_ENV: "production"
