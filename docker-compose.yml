@@ -1,7 +1,4 @@
-version: "3.8"
-
 services:
-  # Banco de dados da nossa aplicacao (separado do Chatwoot)
   db:
     image: postgres:15-alpine
     restart: always
@@ -17,7 +14,6 @@ services:
       timeout: 5s
       retries: 5
 
-  # Nossa aplicacao
   app:
     build: .
     restart: always
@@ -27,25 +23,16 @@ services:
       db:
         condition: service_healthy
     environment:
-      # Banco local da aplicacao
       DATABASE_URL: postgresql://relatorio:${DB_PASSWORD:-relatorio_secret_123}@db:5432/relatorio_fotos
-
-      # NextAuth
       NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
       NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:3000}
-
-      # Claude API
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
-
-      # Jobs
       POLL_INTERVAL_MINUTES: ${POLL_INTERVAL_MINUTES:-2}
-
-      # Chatwoot e Google Drive sao configurados pelo frontend em /configuracoes
 
 volumes:
   pgdata:
 
 networks:
   default:
-    external:
-      name: networking_public
+    name: networking_public
+    external: true
