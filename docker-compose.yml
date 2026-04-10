@@ -34,29 +34,13 @@ services:
       NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
       NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:3000}
 
-      # Chatwoot API (preencher com seus dados)
-      CHATWOOT_BASE_URL: ${CHATWOOT_BASE_URL}
-      CHATWOOT_API_TOKEN: ${CHATWOOT_API_TOKEN}
-      CHATWOOT_ACCOUNT_ID: ${CHATWOOT_ACCOUNT_ID:-1}
-      CHATWOOT_INBOX_ID: ${CHATWOOT_INBOX_ID:-1}
-
-      # Chatwoot PostgreSQL (read-only) - conecta no banco do Chatwoot
-      CHATWOOT_DB_HOST: ${CHATWOOT_DB_HOST}
-      CHATWOOT_DB_PORT: ${CHATWOOT_DB_PORT:-5432}
-      CHATWOOT_DB_NAME: ${CHATWOOT_DB_NAME:-chatwoot_production}
-      CHATWOOT_DB_USER: ${CHATWOOT_DB_USER}
-      CHATWOOT_DB_PASSWORD: ${CHATWOOT_DB_PASSWORD}
-
       # Claude API
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
 
-      # Google Drive
-      GOOGLE_SERVICE_ACCOUNT_EMAIL: ${GOOGLE_SERVICE_ACCOUNT_EMAIL}
-      GOOGLE_SERVICE_ACCOUNT_KEY: ${GOOGLE_SERVICE_ACCOUNT_KEY}
-      GOOGLE_DRIVE_ROOT_FOLDER_ID: ${GOOGLE_DRIVE_ROOT_FOLDER_ID}
-
       # Jobs
       POLL_INTERVAL_MINUTES: ${POLL_INTERVAL_MINUTES:-2}
+
+      # Chatwoot e Google Drive sao configurados pelo frontend em /configuracoes
 
 volumes:
   pgdata:
