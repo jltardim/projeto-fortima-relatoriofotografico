@@ -5,9 +5,12 @@ services:
     image: relatorio-fotos:latest
     ports:
       - "3001:3000"
-    env_file:
-      - /opt/relatorio-fotos/.env
     environment:
+      DATABASE_URL: "postgresql://postgres:favuka123STACKS@postgres:5432/relatorio_fotos"
+      NEXTAUTH_SECRET: "${NEXTAUTH_SECRET}"
+      NEXTAUTH_URL: "https://relatorio.fortimaservidor.org"
+      ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY}"
+      POLL_INTERVAL_MINUTES: "2"
       NODE_ENV: "production"
     networks:
       - network_public
