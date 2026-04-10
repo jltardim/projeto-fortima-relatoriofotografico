@@ -136,7 +136,7 @@ export function ContatoForm({ contato, todasObras }: ContatoFormProps) {
                     type="checkbox"
                     checked={selectedObras.includes(obra.id)}
                     onChange={() => toggleObra(obra.id)}
-                    className="rounded border-gray-300"
+                    className="rounded border-input accent-primary"
                   />
                   <span className="text-sm">{obra.nome}</span>
                 </label>

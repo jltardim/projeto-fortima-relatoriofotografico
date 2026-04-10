@@ -11,6 +11,7 @@ CREATE TABLE users (
   email TEXT NOT NULL UNIQUE,
   password TEXT NOT NULL,
   nome TEXT NOT NULL,
+  config_password_hash TEXT,
   created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -81,6 +82,15 @@ CREATE TABLE drive_config (
   folder_id_raiz TEXT NOT NULL,
   service_account_email TEXT NOT NULL,
   credentials_json TEXT NOT NULL,
+  created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- LLM Config (OpenRouter)
+CREATE TABLE llm_config (
+  id TEXT PRIMARY KEY,
+  openrouter_api_key TEXT NOT NULL,
+  openrouter_model TEXT NOT NULL DEFAULT 'qwen/qwen3.6-plus',
   created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

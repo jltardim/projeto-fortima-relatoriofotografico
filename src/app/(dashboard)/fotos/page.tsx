@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { Camera } from "lucide-react";
 
 interface Foto {
   id: string;
@@ -25,11 +26,11 @@ interface Foto {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  PENDING: "bg-yellow-100 text-yellow-800",
-  PROCESSING: "bg-blue-100 text-blue-800",
-  UPLOADED: "bg-green-100 text-green-800",
-  FAILED: "bg-red-100 text-red-800",
-  NEEDS_INFO: "bg-orange-100 text-orange-800",
+  PENDING: "bg-amber-50 text-amber-700 border border-amber-200",
+  PROCESSING: "bg-sky-50 text-sky-700 border border-sky-200",
+  UPLOADED: "bg-emerald-50 text-emerald-700 border border-emerald-200",
+  FAILED: "bg-rose-50 text-rose-700 border border-rose-200",
+  NEEDS_INFO: "bg-orange-50 text-orange-700 border border-orange-200",
 };
 
 export default function FotosPage() {
@@ -95,7 +96,15 @@ export default function FotosPage() {
       </div>
 
       {fotos.length === 0 ? (
-        <p className="text-muted-foreground">Nenhuma foto encontrada.</p>
+        <div className="flex flex-col items-center justify-center py-16 text-center" role="status">
+          <div className="rounded-full bg-muted p-4 mb-4">
+            <Camera className="h-8 w-8 text-muted-foreground" />
+          </div>
+          <h3 className="text-base font-medium mb-1">Nenhuma foto encontrada</h3>
+          <p className="text-sm text-muted-foreground max-w-sm">
+            As fotos aparecerão aqui quando forem recebidas via WhatsApp ou processadas pelo sistema.
+          </p>
+        </div>
       ) : (
         <div className="space-y-3">
           {fotos.map((foto) => (

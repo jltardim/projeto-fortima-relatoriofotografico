@@ -2,6 +2,8 @@ import Link from "next/link";
 import { db } from "@/lib/db";
 import { Button } from "@/components/ui/button";
 import { ObraCard } from "@/components/obras/obra-card";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Building2 } from "lucide-react";
 
 export default async function ObrasPage() {
   const obras = await db.obra.findMany({
@@ -22,9 +24,13 @@ export default async function ObrasPage() {
       </div>
 
       {obras.length === 0 ? (
-        <p className="text-muted-foreground">
-          Nenhuma obra cadastrada. Crie a primeira obra para comecar.
-        </p>
+        <EmptyState
+          icon={Building2}
+          title="Nenhuma obra cadastrada"
+          description="Cadastre sua primeira obra para começar a organizar fotos e acompanhar o progresso."
+          actionLabel="+ Nova Obra"
+          actionHref="/obras/nova"
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {obras.map((obra) => (

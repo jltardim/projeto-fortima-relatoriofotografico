@@ -8,12 +8,13 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String
-  nome      String
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id                 String   @id @default(cuid())
+  email              String   @unique
+  password           String
+  nome               String
+  configPasswordHash String?  @map("config_password_hash")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
 
   @@map("users")
 }
@@ -125,6 +126,17 @@ model DriveConfig {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("drive_config")
+}
+
+model LlmConfig {
+  id               String @id @default(cuid())
+  openrouterApiKey String @map("openrouter_api_key")
+  openrouterModel  String @default("qwen/qwen3.6-plus") @map("openrouter_model")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("llm_config")
 }
 
 model ChatwootConfig {

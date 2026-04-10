@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Building2, Users, Camera, ImageUp } from "lucide-react";
 
 export default async function DashboardPage() {
   const [obrasCount, contatosCount, fotosToday, fotosByStatus] =
@@ -23,76 +24,59 @@ export default async function DashboardPage() {
     fotosByStatus.map((s) => [s.status, s._count])
   );
 
+  const stats = [
+    { label: "Obras", value: obrasCount, icon: Building2 },
+    { label: "Contatos", value: contatosCount, icon: Users },
+    { label: "Fotos Hoje", value: fotosToday, icon: Camera },
+    {
+      label: "Total Fotos",
+      value: Object.values(statusCounts).reduce((a, b) => a + b, 0),
+      icon: ImageUp,
+    },
+  ];
+
+  const statusItems = [
+    { status: "UPLOADED", label: "Uploaded", variant: "text-emerald-700 bg-emerald-50" },
+    { status: "PENDING", label: "Pendente", variant: "text-amber-700 bg-amber-50" },
+    { status: "PROCESSING", label: "Processando", variant: "text-sky-700 bg-sky-50" },
+    { status: "NEEDS_INFO", label: "Precisa Info", variant: "text-orange-700 bg-orange-50" },
+    { status: "FAILED", label: "Falha", variant: "text-rose-700 bg-rose-50" },
+  ];
+
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
+    <div className="space-y-8">
+      <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Obras
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold">{obrasCount}</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Contatos
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold">{contatosCount}</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Fotos Hoje
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold">{fotosToday}</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Fotos
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-2xl font-bold">
-              {Object.values(statusCounts).reduce((a, b) => a + b, 0)}
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      <h2 className="text-lg font-semibold mb-4">Status das Fotos</h2>
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        {[
-          { status: "UPLOADED", label: "Uploaded", color: "text-green-600" },
-          { status: "PENDING", label: "Pendente", color: "text-yellow-600" },
-          { status: "PROCESSING", label: "Processando", color: "text-blue-600" },
-          { status: "NEEDS_INFO", label: "Precisa Info", color: "text-orange-600" },
-          { status: "FAILED", label: "Falha", color: "text-red-600" },
-        ].map(({ status, label, color }) => (
-          <Card key={status}>
-            <CardContent className="pt-4">
-              <p className={`text-2xl font-bold ${color}`}>
-                {statusCounts[status] || 0}
-              </p>
-              <p className="text-xs text-muted-foreground">{label}</p>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {stats.map(({ label, value, icon: Icon }) => (
+          <Card key={label}>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                {label}
+              </CardTitle>
+              <Icon className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-bold">{value}</p>
             </CardContent>
           </Card>
         ))}
+      </div>
+
+      <div>
+        <h2 className="text-lg font-semibold mb-4">Status das Fotos</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+          {statusItems.map(({ status, label, variant }) => (
+            <Card key={status} className="overflow-hidden">
+              <CardContent className="pt-4">
+                <p className={`text-2xl font-bold ${variant.split(" ")[0]}`}>
+                  {statusCounts[status] || 0}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">{label}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
     </div>
   );

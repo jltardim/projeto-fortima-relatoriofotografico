@@ -3,6 +3,10 @@
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Building2, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -34,62 +38,90 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md">
-        <h1 className="text-2xl font-bold text-center mb-2">
-          Relatorio de Fotos
-        </h1>
-        <p className="text-center text-gray-500 mb-6">
-          Fortima Construtora
-        </p>
+    <div className="min-h-screen flex">
+      {/* Painel esquerdo — branding */}
+      <div className="hidden lg:flex lg:w-1/2 bg-primary items-center justify-center p-12">
+        <div className="max-w-md text-primary-foreground">
+          <div className="flex items-center gap-3 mb-8">
+            <Building2 className="h-10 w-10" />
+            <span className="text-2xl font-bold tracking-tight">Fortima</span>
+          </div>
+          <h2 className="text-3xl font-bold leading-tight mb-4">
+            Relatório Fotográfico de Obras
+          </h2>
+          <p className="text-primary-foreground/80 text-lg leading-relaxed">
+            Gerencie fotos, contatos e acompanhe o progresso das suas obras em
+            um só lugar.
+          </p>
+        </div>
+      </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Email
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="admin@fortima.com"
-            />
+      {/* Painel direito — formulário */}
+      <div className="flex-1 flex items-center justify-center p-6 sm:p-12 bg-background">
+        <div className="w-full max-w-sm space-y-8">
+          {/* Logo mobile */}
+          <div className="lg:hidden text-center">
+            <div className="inline-flex items-center gap-2 mb-2">
+              <Building2 className="h-7 w-7 text-primary" />
+              <span className="text-xl font-bold tracking-tight">Fortima</span>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Relatório Fotográfico de Obras
+            </p>
           </div>
 
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Senha
-            </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="********"
-            />
+          {/* Header */}
+          <div className="space-y-2">
+            <h1 className="text-2xl font-semibold tracking-tight">
+              Entrar
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Digite suas credenciais para acessar o sistema
+            </p>
           </div>
 
-          {error && (
-            <p className="text-red-500 text-sm text-center">{error}</p>
-          )}
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                required
+                placeholder="admin@fortima.com"
+                autoComplete="email"
+              />
+            </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-2 px-4 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {loading ? "Entrando..." : "Entrar"}
-          </button>
-        </form>
+            <div className="space-y-2">
+              <Label htmlFor="password">Senha</Label>
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                required
+                placeholder="••••••••"
+                autoComplete="current-password"
+              />
+            </div>
+
+            {error && (
+              <p className="text-sm text-destructive text-center" role="alert">
+                {error}
+              </p>
+            )}
+
+            <Button type="submit" disabled={loading} className="w-full">
+              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {loading ? "Entrando..." : "Entrar"}
+            </Button>
+          </form>
+
+          <p className="text-xs text-center text-muted-foreground">
+            Fortima Construtora &copy; {new Date().getFullYear()}
+          </p>
+        </div>
       </div>
     </div>
   );

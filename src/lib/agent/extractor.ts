@@ -1,4 +1,5 @@
-import Anthropic from "@anthropic-ai/sdk";
+import OpenAI from "openai";
+import { db } from "@/lib/db";
 
 interface ObraWithFases {
   id: string;
@@ -14,7 +15,20 @@ interface ExtractionResult {
   confianca: "alta" | "media" | "baixa";
 }
 
-const client = new Anthropic();
+async function getOpenRouterClient(): Promise<{ client: OpenAI; model: string }> {
+  const config = await db.llmConfig.findFirst();
+
+  if (!config?.openrouterApiKey) {
+    throw new Error("OpenRouter API key não configurada. Vá em Configurações > IA.");
+  }
+
+  const client = new OpenAI({
+    baseURL: "https://openrouter.ai/api/v1",
+    apiKey: config.openrouterApiKey,
+  });
+
+  return { client, model: config.openrouterModel };
+}
 
 export async function extractObraFase(
   messageText: string,
@@ -55,14 +69,15 @@ Regras:
 - Se nao conseguir identificar, retorne null e confianca = "baixa"`;
 
   try {
-    const response = await client.messages.create({
-      model: "claude-haiku-4-5-20251001",
+    const { client, model } = await getOpenRouterClient();
+
+    const response = await client.chat.completions.create({
+      model,
       max_tokens: 256,
       messages: [{ role: "user", content: prompt }],
     });
 
-    const text =
-      response.content[0].type === "text" ? response.content[0].text : "";
+    const text = response.choices[0]?.message?.content || "";
 
     const parsed = JSON.parse(text.trim());
     return {
