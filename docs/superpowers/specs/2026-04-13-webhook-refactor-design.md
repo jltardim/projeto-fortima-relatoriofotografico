@@ -38,16 +38,18 @@ WhatsApp -> Chatwoot -> Webhook -> Nossa App -> LLM -> Google Drive
    b. message_type === "incoming"
    c. attachments contem image ou video
    d. sender.phone_number existe em Contato.telefone (normalizado)
-5. Deduplicacao: verifica se chatwootMessageId ja existe
-6. Para cada attachment de imagem/video:
-   a. Cria registro Foto (PENDING) no banco da app
-7. Tenta processar imediatamente:
+5. Para cada attachment de imagem/video:
+   a. Deduplicacao: verifica se chatwootAttachmentId ja existe em Foto
+   b. Cria registro Foto (PENDING) no banco da app
+   c. Salva conversation.id para uso em mensagens de retorno
+6. Processamento inline (await, bloqueante):
    a. LLM extrai obra/fase do content da mensagem (uma vez por mensagem)
-   b. Download da imagem via data_url do attachment
+   b. Download da imagem via data_url do attachment (URL absoluta do Chatwoot)
    c. Upload para Google Drive (pasta Obra -> Fase)
    d. Atualiza Foto -> UPLOADED
-8. Se falhar -> Foto fica PENDING ou FAILED
-9. Retorna 200 OK ao Chatwoot (sempre, independente do resultado)
+   e. Se confianca "baixa" -> NEEDS_INFO, envia mensagem ao contato via conversation.id (uma vez por mensagem, nao por attachment)
+7. Se falhar -> Foto fica PENDING ou FAILED
+8. Retorna 200 OK ao Chatwoot (apos processamento)
 ```
 
 ### Scheduler Simplificado
@@ -120,13 +122,22 @@ model ChatwootConfig {
 
 Mantém `baseUrl`, `apiToken`, `accountId`, `inboxId` — usados para enviar mensagens via API REST.
 
-### Foto — Sem mudancas
+### Foto — Adicionar campo
 
-Modelo existente ja tem todos os campos necessarios:
-- `chatwootMessageId` — deduplicacao
-- `mensagemOriginal` — texto da mensagem
-- `status` — PENDING, PROCESSING, UPLOADED, FAILED, NEEDS_INFO
-- Relacoes com `contato`, `obra`, `fase`
+Adicionar `chatwootAttachmentId` para deduplicacao por attachment (nao por mensagem):
+
+```diff
+model Foto {
+  ...
+  chatwootMessageId    Int?
++ chatwootAttachmentId Int?    @unique
++ retryCount           Int     @default(0)
+  ...
+}
+```
+
+- `chatwootAttachmentId` (unique) — deduplicacao por attachment individual
+- `retryCount` — controle de tentativas, maximo 5 retries antes de marcar como FAILED permanente
 
 ### Nenhuma tabela nova necessaria
 
@@ -134,28 +145,39 @@ Modelo existente ja tem todos os campos necessarios:
 
 - Webhook traz: `"+5522998712937"`
 - Banco pode ter formatos variados
-- Normalizar ambos removendo tudo exceto digitos antes de comparar
+- Funcao `normalizePhone()` que remove tudo exceto digitos
 - Exemplo: `"+5522998712937"` -> `"5522998712937"`
+- Lookup: busca todos os contatos (`findMany`), normaliza e compara em memoria (numero pequeno de contatos)
 
 ## Deduplicacao
 
 - Chatwoot pode disparar webhook mais de uma vez (retry)
-- Antes de criar Foto, verificar se ja existe registro com mesmo `chatwootMessageId`
-- Se existir, ignora
+- Deduplicacao por **attachment**, nao por mensagem (uma mensagem pode ter multiplos attachments)
+- Antes de criar Foto, verificar se ja existe registro com mesmo `chatwootAttachmentId`
+- Se existir, ignora aquele attachment especifico
 
 ## Multiplos Attachments
 
 - Uma mensagem pode ter varias fotos
 - Para cada attachment de `file_type: "image"` ou `"video"`, cria um registro Foto separado
 - LLM extrai obra/fase uma vez por mensagem e aplica a todas as fotos
+- Se confianca "baixa" (NEEDS_INFO), envia UMA mensagem de esclarecimento ao contato (nao uma por attachment)
 
 ## Endpoint de Webhook
 
 ### Rota: `POST /api/webhooks/chatwoot`
 
 - Sem autenticacao (mesma rede interna)
-- Sempre retorna 200 OK rapido ao Chatwoot
-- Processamento pesado (LLM + Drive) nao bloqueia o response
+- Processamento inline (await) — bloqueia o response ate completar
+- Chatwoot tem timeout generoso; retry job cobre falhas de timeout
+- Retorna 200 OK apos processamento (ou 200 OK imediato se filtrado)
+
+### Retry Job
+
+- Roda a cada 5 minutos
+- Pega fotos com status PENDING ou FAILED e `retryCount < 5`
+- Incrementa `retryCount` a cada tentativa
+- Apos 5 tentativas, marca como FAILED permanente (nao retenta mais)
 
 ## Arquivos Afetados
 
@@ -166,7 +188,7 @@ Modelo existente ja tem todos os campos necessarios:
 - `src/lib/chatwoot/polling.ts` — queries diretas ao banco do Chatwoot
 
 ### Editar:
-- `prisma/schema.prisma` — remover campos de DB do ChatwootConfig
+- `prisma/schema.prisma` — remover campos de DB do ChatwootConfig, adicionar chatwootAttachmentId e retryCount ao Foto
 - `src/lib/chatwoot/types.ts` — adicionar tipos do payload do webhook
 - `src/lib/jobs/poll-responses.ts` — refatorar para funcao de processamento (sem polling)
 - `src/lib/jobs/scheduler.ts` — remover cron de polling, adicionar cron de retry
