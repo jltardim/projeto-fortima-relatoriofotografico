@@ -1,9 +1,9 @@
 import cron, { type ScheduledTask } from "node-cron";
 import { sendNotifications } from "./send-notifications";
-import { pollResponses } from "./poll-responses";
+import { retryFailedPhotos } from "./retry-photos";
 
 let notificationTask: ScheduledTask | null = null;
-let pollingTask: ScheduledTask | null = null;
+let retryTask: ScheduledTask | null = null;
 let initialized = false;
 
 export async function initScheduler() {
@@ -12,23 +12,21 @@ export async function initScheduler() {
 
   console.log("[scheduler] Inicializando...");
 
-  // Polling every 2 minutes
-  const pollInterval = parseInt(process.env.POLL_INTERVAL_MINUTES || "2", 10);
-  pollingTask = cron.schedule(`*/${pollInterval} * * * *`, async () => {
-    console.log("[scheduler] Executando polling...");
+  // Retry failed photos every 5 minutes
+  retryTask = cron.schedule("*/5 * * * *", async () => {
+    console.log("[scheduler] Executando retry de fotos...");
     try {
-      await pollResponses();
+      await retryFailedPhotos();
     } catch (error) {
-      console.error("[scheduler] Erro no polling:", error);
+      console.error("[scheduler] Erro no retry:", error);
     }
   });
 
-  console.log(`[scheduler] Polling agendado a cada ${pollInterval} minutos`);
+  console.log("[scheduler] Retry de fotos agendado a cada 5 minutos");
 
   // Notification schedule is dynamic — checked every minute
   notificationTask = cron.schedule("* * * * *", async () => {
     try {
-      // Import db dynamically to avoid circular deps
       const { db } = await import("@/lib/db");
       const config = await db.notificacaoConfig.findFirst({
         where: { ativo: true },
@@ -53,7 +51,7 @@ export async function initScheduler() {
 
 export function stopScheduler() {
   notificationTask?.stop();
-  pollingTask?.stop();
+  retryTask?.stop();
   initialized = false;
   console.log("[scheduler] Parado");
 }
