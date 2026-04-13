@@ -67,14 +67,3 @@ export interface WebhookAttachment {
   file_size: number;
 }
 
-// ──── Legacy type (kept until polling.ts is deleted in Task 7) ────
-
-export interface PolledMessage {
-  messageId: number;
-  content: string;
-  createdAt: Date;
-  conversationId: number;
-  fileUrl: string;
-  fileType: string;
-  phoneNumber: string;
-}
