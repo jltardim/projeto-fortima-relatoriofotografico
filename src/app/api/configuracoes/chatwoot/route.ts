@@ -14,7 +14,6 @@ export async function GET() {
     return NextResponse.json({
       ...config,
       apiToken: "***",
-      dbPassword: "***",
     });
   }
   return NextResponse.json(null);
@@ -34,16 +33,11 @@ export async function POST(request: Request) {
     apiToken: body.apiToken,
     accountId: parseInt(body.accountId),
     inboxId: parseInt(body.inboxId),
-    dbHost: body.dbHost,
-    dbPort: parseInt(body.dbPort) || 5432,
-    dbName: body.dbName,
-    dbUser: body.dbUser,
-    dbPassword: body.dbPassword,
   };
 
   const config = existing
     ? await db.chatwootConfig.update({ where: { id: existing.id }, data })
     : await db.chatwootConfig.create({ data });
 
-  return NextResponse.json({ ...config, apiToken: "***", dbPassword: "***" });
+  return NextResponse.json({ ...config, apiToken: "***" });
 }

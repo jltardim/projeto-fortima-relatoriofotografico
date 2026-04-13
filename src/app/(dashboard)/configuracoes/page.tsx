@@ -126,11 +126,6 @@ export default function ConfiguracoesPage() {
   const [cwApiToken, setCwApiToken] = useState("");
   const [cwAccountId, setCwAccountId] = useState("");
   const [cwInboxId, setCwInboxId] = useState("");
-  const [cwDbHost, setCwDbHost] = useState("");
-  const [cwDbPort, setCwDbPort] = useState("5432");
-  const [cwDbName, setCwDbName] = useState("");
-  const [cwDbUser, setCwDbUser] = useState("");
-  const [cwDbPassword, setCwDbPassword] = useState("");
 
   // Drive
   const [drFolderId, setDrFolderId] = useState("");
@@ -165,10 +160,6 @@ export default function ConfiguracoesPage() {
         setCwBaseUrl(data.baseUrl || "");
         setCwAccountId(data.accountId?.toString() || "");
         setCwInboxId(data.inboxId?.toString() || "");
-        setCwDbHost(data.dbHost || "");
-        setCwDbPort(data.dbPort?.toString() || "5432");
-        setCwDbName(data.dbName || "");
-        setCwDbUser(data.dbUser || "");
       }
     });
 
@@ -214,11 +205,6 @@ export default function ConfiguracoesPage() {
           apiToken: cwApiToken,
           accountId: cwAccountId,
           inboxId: cwInboxId,
-          dbHost: cwDbHost,
-          dbPort: cwDbPort,
-          dbName: cwDbName,
-          dbUser: cwDbUser,
-          dbPassword: cwDbPassword,
         }),
       });
       toast.success("Chatwoot configurado");
@@ -356,38 +342,6 @@ export default function ConfiguracoesPage() {
                 <div>
                   <Label>Inbox ID (WhatsApp)</Label>
                   <Input value={cwInboxId} onChange={(e) => setCwInboxId(e.target.value)} placeholder="1" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Banco de Dados (PostgreSQL)</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <Label>Host</Label>
-                  <Input value={cwDbHost} onChange={(e) => setCwDbHost(e.target.value)} placeholder="localhost" />
-                </div>
-                <div>
-                  <Label>Porta</Label>
-                  <Input value={cwDbPort} onChange={(e) => setCwDbPort(e.target.value)} placeholder="5432" />
-                </div>
-              </div>
-              <div>
-                <Label>Nome do Banco</Label>
-                <Input value={cwDbName} onChange={(e) => setCwDbName(e.target.value)} placeholder="chatwoot_production" />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <Label>Usuário</Label>
-                  <Input value={cwDbUser} onChange={(e) => setCwDbUser(e.target.value)} placeholder="chatwoot_reader" />
-                </div>
-                <div>
-                  <Label>Senha</Label>
-                  <Input type="password" value={cwDbPassword} onChange={(e) => setCwDbPassword(e.target.value)} />
                 </div>
               </div>
             </CardContent>
